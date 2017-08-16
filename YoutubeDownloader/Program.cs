@@ -14,7 +14,9 @@ namespace YoutubeDownloader
     {
         private static readonly YoutubeClient YoutubeClient = new YoutubeClient();
         private static readonly Cli FfmpegCli = new Cli("ffmpeg.exe");
-        private static readonly string OutputDir = Path.Combine(Directory.GetCurrentDirectory(), "Output");
+
+        private static readonly string TempDirectoryPath = Path.Combine(Directory.GetCurrentDirectory(), "Temp");
+        private static readonly string OutputDirectoryPath = Path.Combine(Directory.GetCurrentDirectory(), "Output");
 
         private static MediaStreamInfo GetBestVideoStreamInfo(VideoInfo videoInfo)
         {
@@ -45,17 +47,18 @@ namespace YoutubeDownloader
 
             // Download streams
             Console.WriteLine("Downloading...");
-            Directory.CreateDirectory(OutputDir);
+            Directory.CreateDirectory(TempDirectoryPath);
             string videoStreamFileExt = videoStreamInfo.Container.GetFileExtension();
-            string videoStreamFilePath = Path.Combine(OutputDir, $"VID-{Guid.NewGuid()}.{videoStreamFileExt}");
+            string videoStreamFilePath = Path.Combine(TempDirectoryPath, $"VID-{Guid.NewGuid()}.{videoStreamFileExt}");
             await YoutubeClient.DownloadMediaStreamAsync(videoStreamInfo, videoStreamFilePath);
             string audioStreamFileExt = audioStreamInfo.Container.GetFileExtension();
-            string audioStreamFilePath = Path.Combine(OutputDir, $"AUD-{Guid.NewGuid()}.{audioStreamFileExt}");
+            string audioStreamFilePath = Path.Combine(TempDirectoryPath, $"AUD-{Guid.NewGuid()}.{audioStreamFileExt}");
             await YoutubeClient.DownloadMediaStreamAsync(audioStreamInfo, audioStreamFilePath);
 
             // Mux streams
             Console.WriteLine("Combining...");
-            string outFilePath = Path.Combine(OutputDir, $"{cleanTitle}.mp4");
+            Directory.CreateDirectory(OutputDirectoryPath);
+            string outFilePath = Path.Combine(OutputDirectoryPath, $"{cleanTitle}.mp4");
             await FfmpegCli.ExecuteAsync($"-i \"{videoStreamFilePath}\" -i \"{audioStreamFilePath}\" -shortest \"{outFilePath}\" -y");
 
             // Delete temp file
