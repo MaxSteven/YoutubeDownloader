@@ -61,7 +61,7 @@ namespace YoutubeDownloader
             string outFilePath = Path.Combine(OutputDirectoryPath, $"{cleanTitle}.mp4");
             await FfmpegCli.ExecuteAsync($"-i \"{videoStreamFilePath}\" -i \"{audioStreamFilePath}\" -shortest \"{outFilePath}\" -y");
 
-            // Delete temp file
+            // Delete temp files
             Console.WriteLine("Deleting temp files...");
             File.Delete(videoStreamFilePath);
             File.Delete(audioStreamFilePath);
