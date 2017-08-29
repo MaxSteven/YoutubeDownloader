@@ -2,6 +2,10 @@
 
 Command line executable that can download Youtube videos or entire playlists.
 
+## Download
+
+- [See releases](https://github.com/Tyrrrz/YoutubeDownloader/releases)
+
 ## Usage examples
 
 - `YoutubeDownloader.exe "https://www.youtube.com/watch?v=I7RHr4o7t7E"` (video by URL)
