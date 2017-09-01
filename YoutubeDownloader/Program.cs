@@ -38,7 +38,7 @@ namespace YoutubeDownloader
 
             // Get video info
             var videoInfo = await YoutubeClient.GetVideoInfoAsync(id);
-            string cleanTitle = videoInfo.Title.Except(Path.GetInvalidFileNameChars());
+            var cleanTitle = videoInfo.Title.Except(Path.GetInvalidFileNameChars());
             Console.WriteLine($"{videoInfo.Title}");
 
             // Get best streams
@@ -48,17 +48,17 @@ namespace YoutubeDownloader
             // Download streams
             Console.WriteLine("Downloading...");
             Directory.CreateDirectory(TempDirectoryPath);
-            string videoStreamFileExt = videoStreamInfo.Container.GetFileExtension();
-            string videoStreamFilePath = Path.Combine(TempDirectoryPath, $"VID-{Guid.NewGuid()}.{videoStreamFileExt}");
+            var videoStreamFileExt = videoStreamInfo.Container.GetFileExtension();
+            var videoStreamFilePath = Path.Combine(TempDirectoryPath, $"VID-{Guid.NewGuid()}.{videoStreamFileExt}");
             await YoutubeClient.DownloadMediaStreamAsync(videoStreamInfo, videoStreamFilePath);
-            string audioStreamFileExt = audioStreamInfo.Container.GetFileExtension();
-            string audioStreamFilePath = Path.Combine(TempDirectoryPath, $"AUD-{Guid.NewGuid()}.{audioStreamFileExt}");
+            var audioStreamFileExt = audioStreamInfo.Container.GetFileExtension();
+            var audioStreamFilePath = Path.Combine(TempDirectoryPath, $"AUD-{Guid.NewGuid()}.{audioStreamFileExt}");
             await YoutubeClient.DownloadMediaStreamAsync(audioStreamInfo, audioStreamFilePath);
 
             // Mux streams
             Console.WriteLine("Combining...");
             Directory.CreateDirectory(OutputDirectoryPath);
-            string outFilePath = Path.Combine(OutputDirectoryPath, $"{cleanTitle}.mp4");
+            var outFilePath = Path.Combine(OutputDirectoryPath, $"{cleanTitle}.mp4");
             await FfmpegCli.ExecuteAsync($"-i \"{videoStreamFilePath}\" -i \"{audioStreamFilePath}\" -shortest \"{outFilePath}\" -y");
 
             // Delete temp files
@@ -88,7 +88,7 @@ namespace YoutubeDownloader
 
         private static async Task MainAsync(string[] args)
         {
-            foreach (string arg in args)
+            foreach (var arg in args)
             {
                 // Try to determine the type of the URL/ID that was given
 
