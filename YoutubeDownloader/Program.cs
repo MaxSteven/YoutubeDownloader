@@ -37,13 +37,13 @@ namespace YoutubeDownloader
             Console.WriteLine($"Working on video [{id}]...");
 
             // Get video info
-            var videoInfo = await YoutubeClient.GetVideoInfoAsync(id);
-            var cleanTitle = videoInfo.Title.Except(Path.GetInvalidFileNameChars());
-            Console.WriteLine($"{videoInfo.Title}");
+            var video = await YoutubeClient.GetVideoInfoAsync(id);
+            var cleanTitle = video.Title.Except(Path.GetInvalidFileNameChars());
+            Console.WriteLine($"{video.Title}");
 
             // Get best streams
-            var videoStreamInfo = GetBestVideoStreamInfo(videoInfo);
-            var audioStreamInfo = GetBestAudioStreamInfo(videoInfo);
+            var videoStreamInfo = GetBestVideoStreamInfo(video);
+            var audioStreamInfo = GetBestAudioStreamInfo(video);
 
             // Download streams
             Console.WriteLine("Downloading...");
@@ -58,15 +58,15 @@ namespace YoutubeDownloader
             // Mux streams
             Console.WriteLine("Combining...");
             Directory.CreateDirectory(OutputDirectoryPath);
-            var outFilePath = Path.Combine(OutputDirectoryPath, $"{cleanTitle}.mp4");
-            await FfmpegCli.ExecuteAsync($"-i \"{videoStreamFilePath}\" -i \"{audioStreamFilePath}\" -shortest \"{outFilePath}\" -y");
+            var outputFilePath = Path.Combine(OutputDirectoryPath, $"{cleanTitle}.mp4");
+            await FfmpegCli.ExecuteAsync($"-i \"{videoStreamFilePath}\" -i \"{audioStreamFilePath}\" -shortest \"{outputFilePath}\" -y");
 
             // Delete temp files
             Console.WriteLine("Deleting temp files...");
             File.Delete(videoStreamFilePath);
             File.Delete(audioStreamFilePath);
 
-            Console.WriteLine($"Downloaded video [{id}] to [{outFilePath}]");
+            Console.WriteLine($"Downloaded video [{id}] to [{outputFilePath}]");
         }
 
         private static async Task DownloadPlaylistAsync(string id)
@@ -74,12 +74,12 @@ namespace YoutubeDownloader
             Console.WriteLine($"Working on playlist [{id}]...");
 
             // Get playlist info
-            var playlistInfo = await YoutubeClient.GetPlaylistInfoAsync(id);
-            Console.WriteLine($"{playlistInfo.Title} ({playlistInfo.Videos.Count} videos)");
+            var playlist = await YoutubeClient.GetPlaylistInfoAsync(id);
+            Console.WriteLine($"{playlist.Title} ({playlist.Videos.Count} videos)");
 
             // Work on the videos
             Console.WriteLine();
-            foreach (var video in playlistInfo.Videos)
+            foreach (var video in playlist.Videos)
             {
                 await DownloadVideoAsync(video.Id);
                 Console.WriteLine();
