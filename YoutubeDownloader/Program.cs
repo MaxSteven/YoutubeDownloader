@@ -18,17 +18,17 @@ namespace YoutubeDownloader
         private static readonly string TempDirectoryPath = Path.Combine(Directory.GetCurrentDirectory(), "Temp");
         private static readonly string OutputDirectoryPath = Path.Combine(Directory.GetCurrentDirectory(), "Output");
 
-        private static MediaStreamInfo GetBestVideoStreamInfo(VideoInfo videoInfo)
+        private static MediaStreamInfo GetBestVideoStreamInfo(VideoInfo video)
         {
-            if (videoInfo.VideoStreams.Any())
-                return videoInfo.VideoStreams.OrderBy(s => s.VideoQuality).ThenBy(s => s.Bitrate).Last();
+            if (video.VideoStreams.Any())
+                return video.VideoStreams.OrderBy(s => s.VideoQuality).ThenBy(s => s.Bitrate).Last();
             throw new Exception("No applicable media streams found for this video");
         }
 
-        private static MediaStreamInfo GetBestAudioStreamInfo(VideoInfo videoInfo)
+        private static MediaStreamInfo GetBestAudioStreamInfo(VideoInfo video)
         {
-            if (videoInfo.AudioStreams.Any())
-                return videoInfo.AudioStreams.OrderBy(s => s.Bitrate).Last();
+            if (video.AudioStreams.Any())
+                return video.AudioStreams.OrderBy(s => s.Bitrate).Last();
             throw new Exception("No applicable media streams found for this video");
         }
 
