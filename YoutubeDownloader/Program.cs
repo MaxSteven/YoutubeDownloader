@@ -1,11 +1,9 @@
 ﻿using System;
 using System.IO;
-using System.Linq;
-using Tyrrrz.Extensions;
 using System.Threading.Tasks;
 using CliWrap;
+using Tyrrrz.Extensions;
 using YoutubeExplode;
-using YoutubeExplode.Models;
 using YoutubeExplode.Models.MediaStreams;
 
 namespace YoutubeDownloader
@@ -18,32 +16,19 @@ namespace YoutubeDownloader
         private static readonly string TempDirectoryPath = Path.Combine(Directory.GetCurrentDirectory(), "Temp");
         private static readonly string OutputDirectoryPath = Path.Combine(Directory.GetCurrentDirectory(), "Output");
 
-        private static MediaStreamInfo GetBestVideoStreamInfo(VideoInfo video)
-        {
-            if (video.VideoStreams.Any())
-                return video.VideoStreams.OrderBy(s => s.VideoQuality).ThenBy(s => s.Bitrate).Last();
-            throw new Exception("No applicable media streams found for this video");
-        }
-
-        private static MediaStreamInfo GetBestAudioStreamInfo(VideoInfo video)
-        {
-            if (video.AudioStreams.Any())
-                return video.AudioStreams.OrderBy(s => s.Bitrate).Last();
-            throw new Exception("No applicable media streams found for this video");
-        }
-
         private static async Task DownloadVideoAsync(string id)
         {
             Console.WriteLine($"Working on video [{id}]...");
 
             // Get video info
-            var video = await YoutubeClient.GetVideoInfoAsync(id);
-            var cleanTitle = video.Title.Except(Path.GetInvalidFileNameChars());
+            var video = await YoutubeClient.GetVideoAsync(id);
+            var cleanTitle = video.Title.Replace(Path.GetInvalidFileNameChars(), '_');
             Console.WriteLine($"{video.Title}");
 
             // Get best streams
-            var videoStreamInfo = GetBestVideoStreamInfo(video);
-            var audioStreamInfo = GetBestAudioStreamInfo(video);
+            var streamInfoSet = await YoutubeClient.GetVideoMediaStreamInfosAsync(id);
+            var videoStreamInfo = streamInfoSet.Video.WithHighestVideoQuality();
+            var audioStreamInfo = streamInfoSet.Audio.WithHighestBitrate();
 
             // Download streams
             Console.WriteLine("Downloading...");
@@ -74,7 +59,7 @@ namespace YoutubeDownloader
             Console.WriteLine($"Working on playlist [{id}]...");
 
             // Get playlist info
-            var playlist = await YoutubeClient.GetPlaylistInfoAsync(id);
+            var playlist = await YoutubeClient.GetPlaylistAsync(id);
             Console.WriteLine($"{playlist.Title} ({playlist.Videos.Count} videos)");
 
             // Work on the videos
